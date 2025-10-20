@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Music Generator</title>
+</head>
+<body>
+    <h1>AI Music Generator</h1>
+    <form id="generate-form">
+        <label for="prompt">Enter a prompt (e.g., "Jazz music with saxophone"):</label><br>
+        <input type="text" id="prompt" name="prompt" required><br><br>
+        <button type="submit">Generate Music</button>
+    </form>
+    <br>
+    <audio id="audio-player" controls style="display: none;"></audio>
+    <p id="status"></p>
+
+    <script>
+        document.getElementById('generate-form').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const prompt = document.getElementById('prompt').value;
+            const status = document.getElementById('status');
+            const audioPlayer = document.getElementById('audio-player');
+
+            status.textContent = 'Generating audio... Please wait.';
+            audioPlayer.style.display = 'none';
+
+            try {
+                const response = await fetch('/generate', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({ prompt: prompt })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    audioPlayer.src = data.audio_url;
+                    audioPlayer.style.display = 'block';
+                    status.textContent = 'Audio generated successfully!';
+                } else {
+                    const error = await response.json();
+                    status.textContent = 'Error: ' + error.error;
+                }
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>
