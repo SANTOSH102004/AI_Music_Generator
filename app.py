@@ -1,13 +1,18 @@
 from flask import Flask, render_template, request, send_from_directory
 import os
 import uuid
-from bark import SAMPLE_RATE, generate_audio, preload_models
+import torch.serialization
+import numpy
+from bark import SAMPLE_RATE, generate_audio
 from scipy.io.wavfile import write as write_wav
+
+# Fix for PyTorch 2.6 weights_only issue with Bark models
+torch.serialization.add_safe_globals([numpy.core.multiarray.scalar])
 
 app = Flask(__name__)
 
-# Preload Bark models
-preload_models()
+# # Preload Bark models
+# preload_models()
 
 @app.route('/')
 def index():
